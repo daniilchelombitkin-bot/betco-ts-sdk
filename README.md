@@ -15,6 +15,14 @@ Copy `.env.example` to `.env` and fill in your credentials:
 cp .env.example .env
 ```
 
+| Variable | Description |
+|---|---|
+| `BC_EMAIL` | BackOffice login |
+| `BC_PASSWORD` | BackOffice password |
+| `BC_TOTP_SECRET` | Base32 TOTP secret (2FA) |
+| `AFFILIATES_URL` | Affiliates API URL |
+| `API_SECRET` | Secret token for bot authentication (optional but recommended) |
+
 Start:
 
 ```bash
@@ -30,15 +38,35 @@ docker run -d --env-file .env -p 3000:3000 betco-sdk
 
 ## Usage from a bot
 
-Bots communicate with the SDK over HTTP — no credentials needed in the bot:
+### Option A — TypeScript with full hints (recommended)
+
+Install the SDK in your bot project for typed access to the running server:
+
+```bash
+npm install git+https://TOKEN@github.com/daniilchelombitkin-bot/betco-ts-sdk.git
+```
+
+```typescript
+import { SdkHttpClient } from 'betco-ts-sdk';
+
+const sdk = new SdkHttpClient(
+    process.env.SDK_URL!,    // http://YOUR_SERVER_IP:3000
+    process.env.SDK_SECRET,  // same as API_SECRET in server .env
+);
+
+const user = await sdk.users.get(12345);
+const bets = await sdk.reports.getBets({ filterBet: { ... } });
+```
+
+No BetConstruct credentials needed in the bot — auth is centralized on the server.
+
+### Option B — Plain JS (sdk.js)
+
+Copy `sdk.js` from this repo into your bot. Set `SDK_URL` and `SDK_SECRET` env vars.
 
 ```javascript
-const res = await fetch('http://sdk:3000/rpc', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ method: 'users.get', params: { userId: 12345 } }),
-});
-const { result } = await res.json();
+const sdk = require('./sdk');
+const user = await sdk.getUser(12345);
 ```
 
 ## Local development

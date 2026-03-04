@@ -109,6 +109,12 @@ Runs the SDK as a standalone HTTP service accessible from any project or contain
 | `AFFILIATES_URL` | Affiliates API URL |
 | `CRM_URL` | CRM API URL (optional) |
 | `PORT` | Server port (default `3000`) |
+| `API_SECRET` | Bearer token for bot authentication (optional but recommended) |
+
+If `API_SECRET` is set, all `/rpc` requests must include:
+```
+Authorization: Bearer <API_SECRET>
+```
 
 ### Endpoints
 
@@ -239,6 +245,36 @@ module.exports = {
     updateSegment: (segmentId, params) => rpc('crm.segments.update', { segmentId, params }),
     changeActiveProject: (projectId) => rpc('client.changeActiveProject', { projectId }),
 };
+```
+
+### SdkHttpClient (TypeScript bot client)
+
+**File:** `src/SdkHttpClient.ts`
+
+Typed HTTP client for bots. Connects to the running `server.ts`. No BetConstruct credentials needed — auth is centralized on the server.
+
+Install in bot project:
+```bash
+npm install git+https://TOKEN@github.com/daniilchelombitkin-bot/betco-ts-sdk.git
+```
+
+```typescript
+import { SdkHttpClient, BonusType, PaymentDocumentType } from 'betco-ts-sdk';
+
+const sdk = new SdkHttpClient(
+    process.env.SDK_URL!,    // http://YOUR_SERVER_IP:3000
+    process.env.SDK_SECRET,  // same as API_SECRET in server .env
+);
+
+// Full TypeScript hints on all methods:
+const user    = await sdk.users.get(12345);
+const bets    = await sdk.reports.getBets({ filterBet: { ... } });
+const bonuses = await sdk.bonuses.getList();
+await sdk.users.attachBonus(12345, 99, 50, BonusType.FREE_BET);
+await sdk.users.createPaymentDocument(12345, 'USD', 100, PaymentDocumentType.DEPOSIT);
+await sdk.affiliates.players.get({ start: 0, limit: 50 });
+await sdk.crm.segments.update(42, { ... });
+await sdk.client.changeActiveProject(12345);
 ```
 
 ---
