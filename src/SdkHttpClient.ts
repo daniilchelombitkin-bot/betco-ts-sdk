@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { GetTurnoverReportParams, GetBetsParams, GetBonusReportParams } from './actions/Reports';
 import type { GetBonusesParams, CreatePaymentDocumentParams, AttachBonusParams, SearchClientsParams, UpdateClientDetailsParams } from './actions/Users';
 import type { GetBonusListParams } from './actions/Bonuses';
@@ -46,21 +47,17 @@ export class SdkHttpClient {
     }
 
     async health(): Promise<boolean> {
-        const res = await fetch(`${this.url}/health`);
-        return res.ok;
+        const res = await axios.get(`${this.url}/health`);
+        return res.data?.ok === true;
     }
 
     private async _rpc(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (this.secret) headers['Authorization'] = `Bearer ${this.secret}`;
 
-        const res = await fetch(`${this.url}/rpc`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ method, params }),
-        });
+        const res = await axios.post(`${this.url}/rpc`, { method, params }, { headers, validateStatus: () => true });
 
-        const data = await res.json() as { ok: boolean; result?: unknown; error?: string; code?: number | null };
+        const data = res.data as { ok: boolean; result?: unknown; error?: string; code?: number | null };
         if (!data.ok) {
             const err = new Error(data.error ?? 'SDK error') as Error & { code?: number | null };
             err.code = data.code;
