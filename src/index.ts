@@ -1,5 +1,6 @@
 // ─── Clients ──────────────────────────────────────────────────────────────────
 export { BetsConstructClient } from './clients/BetsConstructClient';
+export { SdkHttpClient } from './SdkHttpClient';
 export { AffiliatesClient } from './clients/AffiliatesClient';
 export { CRMClient } from './clients/CRMClient';
 
