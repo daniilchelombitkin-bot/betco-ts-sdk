@@ -165,6 +165,15 @@ export class BetsConstructClient implements IBetsConstructClient {
             );
         }
 
+        // Detect "must change password" flag returned by BetConstruct
+        const loginData = loginResponse.data as Record<string, unknown> | null;
+        if (loginData && (loginData['PasswordChangeRequired'] || loginData['MustChangePassword'] || loginData['IsPasswordExpired'])) {
+            throw new BetsConstructAuthException(
+                'BetConstruct requires a password change. Update BC_PASSWORD in .env and restart the container.',
+                403,
+            );
+        }
+
         let cookies = parseSetCookies(loginResponse.headers as Record<string, unknown>);
 
         // Step 2: 2FA verification
@@ -210,6 +219,16 @@ export class BetsConstructClient implements IBetsConstructClient {
         const accessToken = $('input[name="access_token"]').val() as string | undefined;
 
         if (!accessToken) {
+            const html = authorizeResponse.data as string;
+            const looksLikePasswordChange = /change.?password|password.?change|ChangePassword|newPassword|new_password/i.test(html);
+            if (looksLikePasswordChange) {
+                throw new BetsConstructAuthException(
+                    'BetConstruct requires a password change. Update BC_PASSWORD in .env and restart the container.',
+                    403,
+                );
+            }
+            // Log the HTML for debugging unknown auth failures
+            console.error('[BetsConstructClient] Unexpected OAuth HTML:\n', html.slice(0, 2000));
             throw new BetsConstructAuthException(
                 'Failed to extract access_token from OAuth response. HTML might have changed or login failed silently.',
             );
