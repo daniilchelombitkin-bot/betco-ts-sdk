@@ -64,7 +64,17 @@ const methods: Record<string, RpcHandler> = {
     'client.withPreSelectedPartnerId': (_) => client.withPreSelectedPartnerId().then(() => ({ ok: true })),
 };
 
+const API_SECRET = process.env.API_SECRET;
+
 app.post('/rpc', async (req, res) => {
+    if (API_SECRET) {
+        const auth = req.headers['authorization'];
+        if (auth !== `Bearer ${API_SECRET}`) {
+            res.status(401).json({ ok: false, error: 'Unauthorized' });
+            return;
+        }
+    }
+
     const { method, params } = req.body as { method: string; params?: Record<string, any> };
 
     if (!method || !methods[method]) {
