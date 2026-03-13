@@ -59,8 +59,10 @@ export interface GetBetsParams {
 }
 
 export interface GetRegistrationStatisticsDetailsParams {
-    DateLocal: string;
-    ClientId?: number | null;
+    MinCreatedLocal: string;  // "2026-03-13T00:00:00"
+    MaxCreatedLocal: string;  // "2026-03-13T23:59:59"
+    ClientId?: string | null;
+    DepositCount?: number | null;
 }
 
 export interface RegistrationStatisticsDetailsItem {
@@ -137,9 +139,14 @@ export class Reports extends BaseAction {
         params: GetRegistrationStatisticsDetailsParams,
     ): Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }> {
         await this.ensureAuthenticated();
-        const body: Record<string, unknown> = { DateLocal: params.DateLocal };
-        if (params.ClientId != null) body.ClientId = params.ClientId;
-        return this.sendRequest('/api/en/Client/GetClientRegistrationStatisticsDetails', body) as Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }>;
+        return this.sendRequest('/api/en/Client/GetClientRegistrationStatisticsDetails', {
+            filter: {
+                ClientId: params.ClientId ?? '',
+                MinCreatedLocal: params.MinCreatedLocal,
+                MaxCreatedLocal: params.MaxCreatedLocal,
+                ...(params.DepositCount != null ? { DepositCount: params.DepositCount } : {}),
+            },
+        }) as Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }>;
     }
 
 }
