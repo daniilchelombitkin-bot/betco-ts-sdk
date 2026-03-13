@@ -58,6 +58,31 @@ export interface GetBetsParams {
     ToCurrencyId?: string | null;
 }
 
+export interface GetRegistrationStatisticsDetailsParams {
+    DateLocal: string;
+    ClientId?: number | null;
+}
+
+export interface RegistrationStatisticsDetailsItem {
+    ClientId: number;
+    PartnerId: number;
+    Created: string;
+    CreatedLocal: string;
+    FirstDepositTime: string | null;
+    FirstDepositTimeLocal: string | null;
+    LastDepositTime: string | null;
+    LastDepositTimeLocal: string | null;
+    DepositCount: number;
+    DepositAmount: number;
+    DepositAmountInRC: number;
+    DepositAverageAmount: number;
+    DepositAverageAmountInRC: number;
+    Login: string;
+    Name: string;
+    CurrencyId: string;
+    BTag: string | null;
+}
+
 export interface GetBonusReportParams {
     StartDateLocal?: string | null;
     EndDateLocal?: string | null;
@@ -106,6 +131,16 @@ export class Reports extends BaseAction {
     async getBetReport(params: GetBetsParams): Promise<Record<string, unknown>> {
         await this.ensureAuthenticated();
         return this.sendRequest('/api/en/Report/GetBetReport', params);
+    }
+
+    async getRegistrationStatisticsDetails(
+        params: GetRegistrationStatisticsDetailsParams,
+    ): Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }> {
+        await this.ensureAuthenticated();
+        return this.sendRequest('/api/en/Client/GetClientRegistrationStatisticsDetails', {
+            ClientId: params.ClientId ?? null,
+            DateLocal: params.DateLocal,
+        }) as Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }>;
     }
 
 }

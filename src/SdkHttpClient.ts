@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { GetTurnoverReportParams, GetBetsParams, GetBonusReportParams } from './actions/Reports';
+import type { GetTurnoverReportParams, GetBetsParams, GetBonusReportParams, GetRegistrationStatisticsDetailsParams } from './actions/Reports';
 import type { GetBonusesParams, CreatePaymentDocumentParams, AttachBonusParams, SearchClientsParams, UpdateClientDetailsParams } from './actions/Users';
 import type { GetBonusListParams } from './actions/Bonuses';
 import type { GetTransactionsParams } from './actions/Financials';
@@ -85,9 +85,10 @@ class UsersApi {
 
 class ReportsApi {
     constructor(private rpc: Rpc) {}
-    getBets(params: GetBetsParams)                    { return this.rpc('reports.getBets', params as unknown as Record<string, unknown>); }
-    getTurnOverReport(params: GetTurnoverReportParams) { return this.rpc('reports.getTurnOverReport', params as unknown as Record<string, unknown>); }
-    getBonusReport(params: GetBonusReportParams)       { return this.rpc('reports.getBonusReport', params as unknown as Record<string, unknown>); }
+    getBets(params: GetBetsParams)                                             { return this.rpc('reports.getBets', params as unknown as Record<string, unknown>); }
+    getTurnOverReport(params: GetTurnoverReportParams)                         { return this.rpc('reports.getTurnOverReport', params as unknown as Record<string, unknown>); }
+    getBonusReport(params: GetBonusReportParams)                               { return this.rpc('reports.getBonusReport', params as unknown as Record<string, unknown>); }
+    getRegistrationStatisticsDetails(params: GetRegistrationStatisticsDetailsParams) { return this.rpc('reports.getRegistrationStatisticsDetails', params as unknown as Record<string, unknown>); }
 }
 
 class BonusesApi {

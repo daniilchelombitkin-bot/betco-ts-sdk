@@ -38,6 +38,8 @@ const methods: Record<string, RpcHandler> = {
     'reports.getTurnOverReport':      (p) => client.reports().getTurnOverReport(p as any),
     'reports.getBonusReport':         (p) => client.reports().getBonusReport(p),
 
+    'reports.getRegistrationStatisticsDetails': (p) => client.reports().getRegistrationStatisticsDetails(p as any),
+
     // bonuses
     'bonuses.getList':                (p) => client.bonuses().getList(p.partnerId, p.params),
 
