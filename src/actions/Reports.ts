@@ -137,10 +137,9 @@ export class Reports extends BaseAction {
         params: GetRegistrationStatisticsDetailsParams,
     ): Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }> {
         await this.ensureAuthenticated();
-        return this.sendRequest('/api/en/Client/GetClientRegistrationStatisticsDetails', {
-            ClientId: params.ClientId ?? null,
-            DateLocal: params.DateLocal,
-        }) as Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }>;
+        const body: Record<string, unknown> = { DateLocal: params.DateLocal };
+        if (params.ClientId != null) body.ClientId = params.ClientId;
+        return this.sendRequest('/api/en/Client/GetClientRegistrationStatisticsDetails', body) as Promise<{ Data: RegistrationStatisticsDetailsItem[]; [key: string]: unknown }>;
     }
 
 }
